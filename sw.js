@@ -1,8 +1,8 @@
 // Service worker: เก็บหน้าแอป (เปลือก) ไว้ในเครื่อง ให้เปิดได้เร็วและติดตั้งเป็นแอปได้
 // เนื้อหาเว็บแอปจาก Google Apps Script ยังโหลดจากอินเทอร์เน็ตทุกครั้ง (ข้อมูลเป็นปัจจุบันเสมอ)
-const CACHE = 'vit-online-v1';
+const CACHE = 'vit-online-v2';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
+  './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png', './favicon-32.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
