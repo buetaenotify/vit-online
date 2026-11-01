@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>วิทย์ออนไลน์ · โรงเรียนบ้านบือแต</title>
+<meta name="description" content="ระบบเว็บการศึกษา วิทย์ออนไลน์ — วัดระดับ ฝึกโจทย์ และห้องทดลองวิทยาศาสตร์ ป.1–ป.6">
+<meta name="theme-color" content="#0e5dca">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="วิทย์ออนไลน์">
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#fbf8ff;font-family:'Mali',sans-serif;overflow:hidden}
+  #app{position:fixed;inset:0;width:100%;height:100%;border:0;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);box-sizing:border-box;background:#fbf8ff}
+  #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    background:radial-gradient(circle at 50% 35%,#3d8bff,#0e5dca 70%);color:#fff;z-index:5;transition:opacity .5s}
+  #splash.hide{opacity:0;pointer-events:none}
+  #splash img{width:150px;height:150px;border-radius:34px;box-shadow:0 12px 30px rgba(0,0,0,.3);animation:pop .6s cubic-bezier(.3,1.6,.6,1) both}
+  #splash h1{margin:0;font-size:1.6em}
+  .dots span{display:inline-block;width:10px;height:10px;margin:0 4px;border-radius:50%;background:#ffc531;animation:b 1s infinite}
+  .dots span:nth-child(2){animation-delay:.15s;background:#1fb57c} .dots span:nth-child(3){animation-delay:.3s;background:#ff6fb5}
+  @keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+  #msg{max-width:340px;text-align:center;font-size:.95em;opacity:.95;padding:0 16px}
+  .pill{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));display:none;align-items:center;gap:10px;
+    background:#fff;color:#2a2350;border-radius:20px;padding:10px 12px 10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 24px);font-size:.95em}
+  .pill.on{display:flex}
+  .pill button{border:0;border-radius:14px;padding:8px 14px;font:700 1em 'Mali';cursor:pointer}
+  .pill .go{background:#5b3fd8;color:#fff;box-shadow:0 4px 0 #4127b8}
+  .pill .x{background:#f1edfb;color:#6f6a8a}
+  .setup{background:#fff;color:#2a2350;border-radius:20px;padding:18px;max-width:420px;margin:0 16px;font-family:sans-serif;line-height:1.6}
+  .setup code{background:#f1edfb;padding:2px 6px;border-radius:6px;word-break:break-all}
+</style>
+</head>
+<body>
+  <div id="splash">
+    <img src="icons/icon-512.png" alt="วิทย์ออนไลน์">
+    <h1>วิทย์ออนไลน์</h1>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div id="msg">กำลังเปิดห้องเรียนวิทยาศาสตร์...</div>
+  </div>
+
+  <iframe id="app" title="วิทย์ออนไลน์" allow="autoplay; fullscreen; clipboard-write" allowfullscreen></iframe>
+
+  <div class="pill" id="installPill">
+    <span id="installText">📲 ติดตั้งแอปไว้ที่หน้าจอ เปิดง่ายกว่าเดิม</span>
+    <button class="go" id="installGo">ติดตั้ง</button>
+    <button class="x" id="installX" aria-label="ปิด">✕</button>
+  </div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  var cfg = window.APP_CONFIG || {};
+  var splash = document.getElementById('splash'), msg = document.getElementById('msg'), app = document.getElementById('app');
+  function hideSplash() { splash.classList.add('hide'); }
+
+  // ---- โหลดเว็บแอป ----
+  if (!cfg.appUrl || cfg.appUrl.indexOf('/exec') < 0 || cfg.appUrl.indexOf('วาง') > -1) {
+    msg.innerHTML = '<div class="setup"><b>ยังไม่ได้ตั้งค่าลิงก์เว็บแอป</b><br>แก้ไฟล์ <code>config.js</code> ใน GitHub แล้ววางลิงก์เว็บแอป Apps Script ที่ลงท้ายด้วย <code>/exec</code></div>';
+    document.querySelector('.dots').style.display = 'none';
+  } else if (!navigator.onLine) {
+    msg.textContent = 'ต้องเชื่อมต่ออินเทอร์เน็ตก่อนนะ แล้วเปิดแอปอีกครั้ง 📶';
+    document.querySelector('.dots').style.display = 'none';
+    window.addEventListener('online', function () { location.reload(); });
+  } else {
+    app.addEventListener('load', function () { setTimeout(hideSplash, 600); });
+    setTimeout(hideSplash, 9000);   // กันค้างกรณีเน็ตช้า
+    app.src = cfg.appUrl;
+  }
+
+  // ---- ติดตั้งแอป ----
+  var pill = document.getElementById('installPill'), go = document.getElementById('installGo');
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  var dismissed = false; try { dismissed = localStorage.getItem('vit_install_x') === '1'; } catch (e) {}
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    if (!standalone && !dismissed) setTimeout(function () { pill.classList.add('on'); }, 2500);
+  });
+  go.addEventListener('click', function () {
+    if (deferred) { deferred.prompt(); deferred.userChoice.finally(function () { pill.classList.remove('on'); deferred = null; }); }
+    else pill.classList.remove('on');
+  });
+  document.getElementById('installX').addEventListener('click', function () {
+    pill.classList.remove('on'); try { localStorage.setItem('vit_install_x', '1'); } catch (e) {}
+  });
+  // iPhone / iPad (Safari) ไม่มีปุ่มติดตั้งอัตโนมัติ — แสดงวิธีทำแทน
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios && !standalone && !dismissed) {
+    document.getElementById('installText').innerHTML = '📲 ติดตั้งแอป: แตะปุ่ม <b>แชร์ ⬆️</b> แล้วเลือก <b>"เพิ่มไปยังหน้าจอโฮม"</b>';
+    go.style.display = 'none';
+    setTimeout(function () { pill.classList.add('on'); }, 3000);
+  }
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>
